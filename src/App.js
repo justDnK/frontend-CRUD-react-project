@@ -13,6 +13,7 @@ const App = () => {
   const [age, setAge] = useState();
   const [position, setPosition] = useState("");
   const [salary, setSalary] = useState("");
+
   let responseText = "";
 
   const createUserFunction = async () => {
@@ -59,7 +60,7 @@ const App = () => {
   } 
 
   const updateUserData = async () => {
-    await fetch("http://localhost:8080/update", {
+    const response = await fetch("http://localhost:8080/update", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -72,6 +73,12 @@ const App = () => {
         salary: salary
       })
     });
+
+    if(response.status === 200) {
+      changeClassNameForm();
+    } else {
+      changeClassNameTextResult();
+    }
 
     setId("")
     setName("")
@@ -95,6 +102,17 @@ const App = () => {
   function showDeleteResult() {
     const result = document.getElementById("result-delete");
     result.textContent = "user was deleted !";
+  }
+
+  const [active, setActive] = useState(false);
+  const[activeText, setActiveText] = useState(false);
+
+  function changeClassNameForm() {
+    setActive(!active);
+  }
+
+  function changeClassNameTextResult() {
+    setActiveText(!activeText);
   }
 
   return(
@@ -163,9 +181,9 @@ const App = () => {
           />
         </div>
 
-        <div className="info">
+        <pre className="info">
           <p id="info-text"></p>
-        </div>
+        </pre>
       </div>
 
       <PageLine />
@@ -175,6 +193,8 @@ const App = () => {
 
         
         <div className="form">
+          <p>write id of user which you want delete: </p>
+
           <NumberPole 
           value={id}
           onChange={(e) => setId(e.target.value)}
@@ -182,40 +202,47 @@ const App = () => {
           className="form-element"
           />
 
-          <TextPole
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder={"name.."}
-          className="form-element"
-          />
 
-          <NumberPole 
-          value={age}
-          onChange={(e) => setAge(e.target.value)}
-          placeholder={"age.."}
-          className="form-element"
-          />
+          <div className={active ? "active-form-block-update" : "inactive-form-block-update"}>
+              <TextPole
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder={"name.."}
+              className="form-element"
+              />
 
-          <TextPole 
-          value={position}
-          onChange={(e) => setPosition(e.target.value)}
-          placeholder={"position.."}
-          className="form-element"
-          />
+              <NumberPole 
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              placeholder={"age.."}
+              className="form-element"
+              />
 
-          <NumberPole 
-          value={salary}
-          onChange={(e)=>setSalary(e.target.value)}
-          placeholder={"salary.."}
-          className="form-element"
-          />
+              <TextPole 
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+              placeholder={"position.."}
+              className="form-element"
+              />
+
+              <NumberPole 
+              value={salary}
+              onChange={(e)=>setSalary(e.target.value)}
+              placeholder={"salary.."}
+              className="form-element"
+              />
+
+          </div>
 
           <SimpleButton 
           text="okay" 
-          
           onClick={updateUserData}
           />
 
+        </div>
+
+        <div className="ghost-block" id="ghost">
+            <p className={activeText ? "inactive-text-result" : "active-text-result"}>error: user does not exist !!!</p>
         </div>
       </div>
 
