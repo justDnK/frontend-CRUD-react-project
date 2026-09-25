@@ -59,8 +59,13 @@ const App = () => {
     document.getElementById("info-text").textContent = JSON.stringify(data, null, 2);
   } 
 
+  //update method start
+
+  const[activeFormUpdate, setActiveBlockUpdate] = useState(false);
+  const[badResultText, setBadResultText] = useState(false);
+
   const updateUserData = async () => {
-    const response = await fetch("http://localhost:8080/update", {
+    await fetch("http://localhost:8080/update", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json"
@@ -74,45 +79,30 @@ const App = () => {
       })
     });
 
-    if(response.status === 200) {
-      changeClassNameForm();
-    } else {
-      changeClassNameTextResult();
-    }
-
-    setId("")
     setName("")
     setAge("")
     setPosition("")
     setSalary("")
   }
 
+  const checkUserById = async () => {
+    const response = await fetch(`http://localhost:8080/check/${id}`,
+      {method: "GET"}
+    );
+
+    if(response.status == 200) {
+      setActiveBlockUpdate(true);
+    } else {setBadResultText(true);}
+  }
+
+  // update method end
+
   const deleteUser = async () => {
     const response = await fetch(`http://localhost:8080/delete/${id}`, {
       method: "DELETE"
     });
 
-    if(response.ok) {
-      showDeleteResult();
-    }
-
     setId("");
-  }
-
-  function showDeleteResult() {
-    const result = document.getElementById("result-delete");
-    result.textContent = "user was deleted !";
-  }
-
-  const [active, setActive] = useState(false);
-  const[activeText, setActiveText] = useState(false);
-
-  function changeClassNameForm() {
-    setActive(!active);
-  }
-
-  function changeClassNameTextResult() {
-    setActiveText(!activeText);
   }
 
   return(
@@ -193,17 +183,19 @@ const App = () => {
 
         
         <div className="form">
-          <p>write id of user which you want delete: </p>
+          <p className={activeFormUpdate ? "none-block" : "text-update-block"}>write id of user which you want delete: </p>
 
           <NumberPole 
           value={id}
           onChange={(e) => setId(e.target.value)}
           placeholder={"id.."}
-          className="form-element"
+          className={activeFormUpdate ? "none-block" : "existing-block"}
           />
 
 
-          <div className={active ? "active-form-block-update" : "inactive-form-block-update"}>
+          <div className={activeFormUpdate ? "ghost-block" : "none-block"}>
+              <p className="text-update-block">User was finded ! Write data of user which you want delete:</p>
+
               <TextPole
               value={name}
               onChange={(e) => setName(e.target.value)}
@@ -232,18 +224,24 @@ const App = () => {
               className="form-element"
               />
 
+              <SimpleButton 
+                text={"okay"}
+                onClick={updateUserData}
+              />
+
           </div>
+
+          <p className={badResultText ? "text-update-block" : "none-block"}>error: user not finded !</p>
 
           <SimpleButton 
           text="okay" 
-          onClick={updateUserData}
+          className={activeFormUpdate ? "none-block" : "existing-block"}
+          onClick={checkUserById}
           />
 
         </div>
 
-        <div className="ghost-block" id="ghost">
-            <p className={activeText ? "inactive-text-result" : "active-text-result"}>error: user does not exist !!!</p>
-        </div>
+
       </div>
 
       <PageLine />
